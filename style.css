@@ -1,0 +1,127 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: radial-gradient(circle at top, #1c1c1c 0%, #0a0a0a 100%);
+    color: #eee;
+    overflow-x: hidden;
+    position: relative;
+}
+
+h1 {
+    margin-top: 10px;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: #00ffe7;
+    text-shadow: 0 0 10px #00ffe7, 0 0 20px #000000;
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+.game {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(80px, 120px));
+    gap: 12px;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+.cell {
+    aspect-ratio: 1/1;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    font-size: clamp(2rem, 8vw, 3rem);
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.cell:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 0 15px #00ffe7;
+}
+
+.cell.X {
+    color: #ff4081;
+    text-shadow: 0 0 8px #000000, 0 0 16px #000000;
+}
+
+.cell.O {
+    color: #40c4ff;
+    text-shadow: 0 0 8px #000000, 0 0 16px #000000;
+}
+
+#status {
+    margin: 20px 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+    text-shadow: 0 0 6px rgba(0, 255, 231, 0.7);
+}
+
+#restart {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #ff4081, #651fff);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(255, 64, 129, 0.6);
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+#restart:hover {
+    transform: scale(1.07);
+    box-shadow: 0 0 18px rgba(255, 64, 129, 0.9);
+}
+
+footer {
+    margin-top: auto;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    color: #aaa;
+    text-align: center;
+}
+
+footer span {
+    color: #ff4d6d;
+    font-size: 1.1rem;
+    margin: 0 4px;
+}
+
+/* Confetti dots */
+.confetti {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: floatUp 2s linear forwards;
+    pointer-events: none;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-200px) scale(0.3);
+        opacity: 0;
+    }
+}
