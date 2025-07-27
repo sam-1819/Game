@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic Tac Toe 🌙</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Poppins", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        background: radial-gradient(circle at top, #1c1c1c 0%, #0a0a0a 100%);
+        color: #eee;
+        overflow-x: hidden;
+        position: relative;
+      }
+      h1 {
+        margin-top: 10px;
+        font-size: clamp(2rem, 5vw, 3rem);
+        color: #00ffe7;
+        text-shadow: 0 0 10px #00ffe7, 0 0 20px #000000;
+        letter-spacing: 2px;
+        text-align: center;
+      }
+
+      .game {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(80px, 120px));
+        gap: 12px;
+        justify-content: center;
+        margin-top: 30px;
+        margin-bottom: 20px;
+      }
+      .cell {
+        aspect-ratio: 1/1;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        font-size: clamp(2rem, 8vw, 3rem);
+        font-weight: 700;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        user-select: none;
+      }
+      .cell:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 0 15px #00ffe7;
+      }
+      .cell.X {
+        color: #ff4081;
+        text-shadow: 0 0 8px #000000, 0 0 16px #000000;
+      }
+      .cell.O {
+        color: #40c4ff;
+        text-shadow: 0 0 8px #000000, 0 0 16px #000000;
+      }
+      #status {
+        margin: 20px 10px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-align: center;
+        text-shadow: 0 0 6px rgba(0, 255, 231, 0.7);
+      }
+      #restart {
+        padding: 12px 28px;
+        background: linear-gradient(135deg, #ff4081, #651fff);
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        cursor: pointer;
+        box-shadow: 0 0 12px rgba(255, 64, 129, 0.6);
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+      }
+      #restart:hover {
+        transform: scale(1.07);
+        box-shadow: 0 0 18px rgba(255, 64, 129, 0.9);
+      }
+      footer {
+        margin-top: auto;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+        color: #aaa;
+        text-align: center;
+      }
+      footer span {
+        color: #ff4d6d;
+        font-size: 1.1rem;
+        margin: 0 4px;
+      }
+      /* Confetti dots */
+      .confetti {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.8;
+        animation: floatUp 2s linear forwards;
+        pointer-events: none;
+      }
+      @keyframes floatUp {
+        0% {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-200px) scale(0.3);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tic Tac Toe</h1>
+    <h4 style="font-family: poppins, sans-serif; font-size: 24px">
+      For Rahida Ma'am
+    </h4>
+    <div class="game">
+      <div class="cell" data-index="0"></div>
+      <div class="cell" data-index="1"></div>
+      <div class="cell" data-index="2"></div>
+      <div class="cell" data-index="3"></div>
+      <div class="cell" data-index="4"></div>
+      <div class="cell" data-index="5"></div>
+      <div class="cell" data-index="6"></div>
+      <div class="cell" data-index="7"></div>
+      <div class="cell" data-index="8"></div>
+    </div>
+    <h2 id="status">Player X's turn</h2>
+    <button id="restart">Restart Game</button>
+
+    <!-- 🔊 Win sound -->
+    <audio id="winSound">
+      <source
+        src="https://actions.google.com/sounds/v1/cartoon/concussive_hit_guitar_boing.ogg"
+        type="audio/ogg"
+      />
+    </audio>
+
+    <footer>Made with <span>❤️</span> By Mr. Sameer</footer>
+
+    <script>
+      const cells = document.querySelectorAll(".cell");
+      const statusText = document.getElementById("status");
+      const restartBtn = document.getElementById("restart");
+      const winSound = document.getElementById("winSound");
+
+      let currentPlayer = "X";
+      let board = ["", "", "", "", "", "", "", "", ""];
+      let running = true;
+
+      const winPatterns = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      cells.forEach((cell) => cell.addEventListener("click", cellClicked));
+      restartBtn.addEventListener("click", restartGame);
+
+      function cellClicked() {
+        const index = this.dataset.index;
+        if (board[index] !== "" || !running) return;
+        board[index] = currentPlayer;
+        this.textContent = currentPlayer;
+        this.classList.add(currentPlayer);
+        checkWinner();
+      }
+
+      function changePlayer() {
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        statusText.textContent = `Player ${currentPlayer}'s turn`;
+      }
+
+      function checkWinner() {
+        let roundWon = false;
+        for (let i = 0; i < winPatterns.length; i++) {
+          const [a, b, c] = winPatterns[i];
+          if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            roundWon = true;
+            break;
+          }
+        }
+        if (roundWon) {
+          statusText.textContent = `🎉 Player ${currentPlayer} Wins!`;
+          running = false;
+          playWinSound();
+          launchConfetti();
+        } else if (!board.includes("")) {
+          statusText.textContent = `🤝 It's a Draw!`;
+          running = false;
+        } else {
+          changePlayer();
+        }
+      }
+
+      function restartGame() {
+        currentPlayer = "X";
+        board = ["", "", "", "", "", "", "", "", ""];
+        running = true;
+        statusText.textContent = `Player ${currentPlayer}'s turn`;
+        cells.forEach((cell) => {
+          cell.textContent = "";
+          cell.classList.remove("X", "O");
+        });
+      }
+
+      function launchConfetti() {
+        for (let i = 0; i < 35; i++) {
+          const confetti = document.createElement("div");
+          confetti.classList.add("confetti");
+          document.body.appendChild(confetti);
+
+          const size = Math.random() * 12 + 8;
+          const left = Math.random() * window.innerWidth;
+          const color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+
+          confetti.style.width = size + "px";
+          confetti.style.height = size + "px";
+          confetti.style.left = left + "px";
+          confetti.style.bottom = "0px";
+          confetti.style.backgroundColor = color;
+
+          setTimeout(() => {
+            confetti.remove();
+          }, 2000);
+        }
+      }
+
+      function playWinSound() {
+        winSound.currentTime = 0;
+        winSound.play();
+      }
+    </script>
+  </body>
+</html>
